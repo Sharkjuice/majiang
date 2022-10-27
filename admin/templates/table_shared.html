@@ -1,0 +1,37 @@
+<div id="table-shared" class="tab-pane active">             
+    <table class="table">
+        <thead>
+          <tr>
+            <th>房间号</th>
+            <th>牌桌号</th>
+            <th>牌桌名称</th>
+            <th>牌桌状态</th>
+            <th>局数</th>
+            <th>操作</th> 
+          </tr>
+        </thead>
+        <tbody>
+        {%- for table in shared_table_list %}   
+          <tr>
+            <td>{{table.room_id}}</td>
+            <td>{{table.table_id}}</td>
+            <td>{{table.name}}</td>
+            {% if table.status == const.EMPTY %}
+            <td>空闲</td>
+            {% elif table.status == const.OFFLINE %}
+            <td>未上线</td>
+            {% else %}
+            <td>{{table.status}}人</td>
+            {% endif %}
+            <td>{{ table.max_ju }}</td>
+            <td>
+              <button type="button" 
+                onclick="makePrivate({{table.route}})" class="btn btn-primary">私有</button>
+            </td>
+          </tr>
+        {%- endfor %}
+        </tbody>
+    </table>        
+</div>
+
+

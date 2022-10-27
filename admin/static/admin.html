@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- <meta http-equiv="refresh" content="10"> -->
+    <title>中国麻将</title>
+    <link href="/third_party/bootstrap.css" rel="stylesheet">
+    <link href="/stylesheets/fonts.css" rel="stylesheet">
+    <link href="/stylesheets/tree.css" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: '珠算麻将';
+                src: url(/fonts/majiang.ttf) format("truetype")
+        }
+        .majiang-font{
+                    font-family:珠算麻将;
+                    font-size: 2rem;
+                }
+        .nav-tabs {
+            background-color: #f3f3f3;
+            box-shadow: 0px 0px 33px -15px #000;
+        }
+        .tab-content {
+            background-color: #f3f3f3;
+            padding: 5px 15px;
+            height: 100%;
+        }
+        .nav-link {
+            color: #9C27B0;
+        }
+        .nav-tabs {
+            border-bottom: 1px solid #9C27B0;
+        }
+        .nav-tabs .nav-link.active {
+            border-color: #9C27B0 #9C27B0 #fff;
+        }
+        .block-center {
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%,-50%);
+            min-width:25rem;/*这个比例可以自己按需调节*/
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar navbar-static-top navbar-light">
+            <a class="navbar-brand" href="#">控制台</a>
+            <ul class="nav nav-tabs" role="tablist"> 
+                <li class="nav-item"><a id="nav-link-rooms" class="nav-link" onclick="onTab('rooms')" href="#rooms">所有房间</a></li>		           		
+                <li class="nav-item"><a id="nav-link-shared-tables" class="nav-link" onclick="onTab('shared-tables')" href="#shared-tables">共享牌桌</a></li>
+                <li class="nav-item"><a id="nav-link-private-tables" class="nav-link" onclick="onTab('private-tables')" href="#private-tables">专用牌桌</a></li>
+                <li class="nav-item"><a id="nav-link-data-files" class="nav-link" onclick="onTab('data-files')" href="#data-files">打牌记录</a></li>
+                <li class="nav-item"><a id="nav-link-code-files" class="nav-link" onclick="onTab('code-files')" href="#code-files">同步版本</a></li>
+            </ul>
+            <div class="nav float-xs-right">
+                <button type="button" onclick="window.location.reload()" class="mr-3 btn btn-light">刷新</button>
+                <button type="button" onclick="logout()" class="btn btn-light">退出</button>
+            </div>
+        </nav>
+        <div class="tab-content">
+            <!-- room html -->
+            <div id="rooms" class="tab-pane">
+                <form class="form-horizontal" role="form">
+                    <div class="form-group row">
+                        <label for="room_hao" class="col-sm-3 control-label">房间号</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" v-model="room_id" placeholder="请输房间号">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="room_port" class="col-sm-3 control-label">端口</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" v-model="room_port" placeholder="请输入端口">
+                        </div>
+                    </div>
+            
+                    <div class="form-group row">
+                        <label for="room_start_method" class="col-sm-3 control-label">启动方式</label>
+                        <div class="col-sm-9">
+                          <label class="radio-inline">
+                              <input type="radio" v-model="start_method" id="radio_auto_start" value="0"> 自动启动
+                          </label>
+                          <label class="radio-inline">
+                              <input type="radio" v-model="start_method" id="radio_manual_start" value="1"> 手动启动
+                          </label>
+                          <label class="radio-inline">
+                              <input type="radio" v-model="start_method" id="radio_not_start" value="2"> 不启动
+                          </label>
+                      </div>
+                    </div>
+            
+                    <div class="float-right">
+                        <button type="button" @click="addRoom()" class="btn btn-primary">增加</button>
+                    </div>
+                </form>
+                <br><br>
+                <table class="table">
+                    <thead>
+                        <tr>
+                        <th>房间号</th>
+                        <th>端口</th>
+                        <th>IP地址</th>
+                        <th>在线状态</th>
+                        <th>启动方式</th>
+                        <th>可用状态</th>
+                        <th>管理状态</th>
+                        <th>房间类型</th>            
+                        <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="room in rooms">
+                        <td>{{room.room_id}}</td>
+                        <td>{{room.port}}</td>
+                        <td>{{room.ipaddr}}</td>
+                        <td v-if="room.status == consts.ONLINE">在线</td>
+                        <td v-else>离线</td>
+                        <td v-if="room.start_method == consts.AUTO_START">自动</td>
+                        <td v-else-if="room.start_method == consts.MANUL_START">手动</td>
+                        <td v-else>从不</td>
+                        <td v-if="room.blocked">暂停</td>
+                        <td v-else>可用</td>
+                        <td v-if="room.managed">已管理</td>
+                        <td v-else>未管理</td>
+                        <td v-if="room.type == consts.PROD">生产</td>
+                        <td v-else>开发</td>
+            
+                        <td>        
+                            <button v-if="room.status == consts.OFFLINE" type="button" 
+                                @click="onRoom(room.room_id, 'delete')" 
+                                class="mr-3 btn btn-primary"> 删除</button>
+                            
+                            <button v-if="room.blocked" type="button" @click="onRoom(room.room_id, 'enable')" 
+                                class="mr-3 btn btn-primary">启用</button>
+                            <button v-else type="button" @click="onRoom(room.room_id, 'disable')"
+                                class="mr-3 btn btn-primary">停用</button>
+                           
+                            <button v-if="room.managed" type="button" 
+                                @click="onRoom(room.room_id, 'stop')" 
+                                class="mr-3 btn btn-primary">关闭</button>
+                            <button v-else-if="room.status == consts.OFFLINE && room.start_method != consts.NOT_START" 
+                                type="button" @click="onRoom(room.room_id, 'start')" 
+                                class="mr-3 btn btn-primary">启动</button>
+                        </td>
+                        </tr>
+                    </tbody>
+                </table>        
+            </div>
+            <!-- include table_private html -->
+            <div id="private-tables" class="tab-pane">             
+                <table class="table">
+                    <thead>
+                      <tr>
+                        <th>房间号</th>
+                        <th>牌桌号</th>
+                        <th>牌桌名称</th>
+                        <th>牌桌状态</th>
+                        <th>局数</th>
+                        <th>规则</th>
+                        <th>操作</th> 
+                      </tr>
+                    </thead>
+                    <tbody id="private-table-list">
+                      <tr v-for="table in tables">
+                        <td>{{table.room_id}}</td>
+                        <td>{{table.table_id}}</td>
+                        <td>{{table.name}}</td>
+                        <td v-if="table.status == consts.EMPTY">空闲</td>
+                        <td v-else-if="table.status == consts.OFFLINE">未上线</td>
+                        <td v-else>{{table.status}}人</td>
+                        <td>{{ table.max_ju }}</td>
+                        <td>{{ table.dialect}}</td>
+                        <td>
+                          <button type="button" class="mr-3 btn btn-primary" 
+                            @click="showPrivateModal(table.route, table.name, table.dialect, table.max_ju)"
+                            >修改</button>
+                          <button type="button" @click="makeShared(table.route)" class="btn btn-primary">共享</button>
+                        </td>
+                      </tr>
+                    </tbody>
+                </table>        
+            </div>
+            <!-- table_shared html -->
+            <div id="shared-tables" class="tab-pane active">             
+                <table class="table">
+                    <thead>
+                      <tr>
+                        <th>房间号</th>
+                        <th>牌桌号</th>
+                        <th>牌桌名称</th>
+                        <th>牌桌状态</th>
+                        <th>局数</th>
+                        <th>操作</th> 
+                      </tr>
+                    </thead>
+                    <tbody id="shared-table-list">
+                      <tr v-for="table in tables">
+                        <td>{{table.room_id}}</td>
+                        <td>{{table.table_id}}</td>
+                        <td>{{table.name}}</td>
+                        <td v-if="table.status == consts.EMPTY">空闲</td>
+                        <td v-else-if="table.status == consts.OFFLINE">未上线</td>
+                        <td v-else>{{table.status}}人</td>
+                        <td>{{ table.max_ju }}</td>
+                        <td>
+                          <button type="button" 
+                            @click="makePrivate(table.route)" class="btn btn-primary">私有
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                </table>        
+            </div>
+            <!-- table_record html -->
+            <div id="data-files" class="tab-pane">
+                <div class="container p-0">
+                    <div class="row">
+                        <div class="tree well col-sm-4 p-0" id="data-files-tree">
+                            <ul style="padding-left:0px">
+                                <li v-for = '(room, room_id) in data_files'>
+                                    <span class="glyphicon glyphicon-folder-open"> 房间#{{room_id}}</span>
+                                    <ul>
+                                        <li v-for = '(table, table_id) in room'>
+                                            <span class="glyphicon glyphicon-folder-open"> 牌桌#{{table_id}}</span>
+                                            <ul>
+                                                <li v-for ='(paiju, start_time) in table'>
+                                                    <span class="glyphicon glyphicon-folder-open"> {{start_time}}</span>
+                                                    <ul>
+                                                        <li v-for="file_tup in paiju">
+                                                            <span class="glyphicon glyphicon-leaf"> 
+                                                                <a href="#" 
+                @click="showFileRecords(room_id, table_id, start_time, file_tup[0], file_tup[1])">
+                                                                第{{file_tup[0]+1}}局</a>
+                                                            </span>
+                                                        </li>
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    <div class="well col-sm-8" id="data-file-records">
+                        <div class="container">
+                            <div class="row mt-2">
+                                <div class="col-sm-10">
+                                    <div class="row">
+                                        <div class="col-sm-2 p-0">当前牌局:</div>
+                                        <div class="col-sm-10 p-0" >{{paiju_info}}</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-2 p-0">打牌规则:</div>
+                                        <div class="col-sm-10 p-0">{{dialect_name}}</div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-2">
+                                    <button type="button" @click="playback()" class="btn btn-danger">
+                                        测试</button>
+                                </div>
+                            </div>
+                        </div>
+                        <table class="table mt-2">
+                            <thead>
+                              <tr>
+                                <th style="width:10%">步骤</th>
+                                <th style="width:10%">方位</th>
+                                <th style="width:15%">操作</th>
+                                <th style="width:65%">参数</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(record, index) in file_records">
+                                    <td>{{index}}</td>
+                                    <td>{{record.fang_name}}</td>
+                                    <td>{{record.action_name}}</td>
+                                    <td v-html="record.param_text"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- table_version.html -->
+            <div id="code-files" class="tab-pane">
+                <form class="form-horizontal" role="form">
+                  <div class="float-right">
+                      <button type="button" @click="syncAllFiles()" class="btn btn-primary">同步所有文件</button>
+                  </div>    
+                </form>
+                <br><br>
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>目录名</th>
+                      <th>文件名</th>
+                      <th>开发版本</th>
+                      <th>生产版本</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="file in code_files">
+                      <td>{{file.foldname}}</td>
+                      <td>{{file.filename}}</td>
+                      <td>{{file.devel_time}}</td>
+                      <td>{{file.prod_time}}</td>
+                      <td>
+                        <button type="button" @click="syncOneFile(file.foldname, file.filename)" 
+                          class="btn btn-primary">同步
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>        
+              </div>
+        </div>
+    </div>
+<!-- private html -->
+<div class="block-center modal" id="modal-private" tabindex="-1" role="dialog">
+    <div class="modal-dialog-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">编辑私有牌桌</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" role="form" id="private-table-edit">
+                    <input type="text" class="form-control" hidden name="table_route">
+                    <div class="input-group mb-2">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text">名称</span>
+                        </div>
+                        <input type="text" class="form-control" placeholder="牌桌名称"
+                            v-model="table_name">
+                    </div>
+
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text">规则</span>
+                        </div>
+                        <div class="d-flex form-control" id="radio_rules" style="align-items:center">
+                            <label v-for="(dialect, name, index) in dialects" class="radio-inline">
+                                <input type="radio" v-model="dialect_name" :title="dialect.doc" 
+                                    :id="`radio_rule_${index}`" :value="name" 
+                                :checked="index == 0"> {{name}}
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text">局数</span>
+                        </div>
+                        <div  class="d-flex align-items-center form-control" style="align-items:center">
+                            <label class="radio-inline">
+                                <input type="radio" v-model="max_ju" id="radio_max_ju_6" value="6" checked> 6局
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" v-model="max_ju" id="radio_max_ju_12"  value="12"> 12局
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" v-model="max_ju" id="radio_max_ju_18"  value="18"> 18局
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" v-model="max_ju" id="radio_max_ju_24"  value="24"> 24局
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" v-model="max_ju" id="radio_max_ju_30"  value="30"> 30局
+                            </label>
+                        </div>
+                    </div>
+                    <div class="float-right">
+                        <button type="button" @click="editPrivate()" class="mr-3 btn btn-primary">确定</button>
+                        <button type="button" onclick="$('#modal-private').modal('hide')" class="btn btn-primary">取消</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- confirm html -->
+<div class="block-center modal" id="modal-comfirm" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">确认</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="text-danger text-center" id="text-confirm">
+                    {{confirm_text}}
+                </div>
+                <br>
+                <div class="float-right">
+                    <button type="button" id="button-confirm" class="mr-3 btn btn-primary">确认</button>
+                    <button type="button" onclick="$('#modal-comfirm').modal('hide')" class="btn btn-primary">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/third_party/jquery-3.6.0.min.js"></script>
+<script src="/third_party/bootstrap.min.js"></script>
+<script src="/third_party/require.js" ></script>
+<script src="https://unpkg.com/vue@next"></script>
+<script>   
+    let app = {}
+    function mount(vapp){
+        app.rooms = vapp.rooms.mount('#rooms')
+        app.private_tables = vapp.private_tables.mount('#private-table-list')
+        app.shared_tables = vapp.shared_tables.mount('#shared-table-list')
+        app.data_files = vapp.data_files.mount('#data-files-tree')
+        app.data_file_records = vapp.data_file_records.mount('#data-file-records')
+        app.code_files = vapp.code_files.mount('#code-files')
+        app.comfirm = vapp.comfirm.mount("#text-confirm")
+        app.private_table_edit = vapp.private_table_edit.mount("#modal-private")
+        window.app = app
+        if(!window.location.hash){
+            onTab("rooms")
+        }else{
+            onTab(window.location.hash.slice(1))
+        }
+    }
+
+    window.onload = function(){
+        if(window.location.href.includes("/majiang/admin/devel")){
+            require(["/devel/front/mjadmin.js"], mount)
+        }else
+        if(window.location.href.includes("/majiang/admin")){
+            require(["/prod/front/mjadmin.js"], mount)
+        }
+    }
+
+
+    function onTab(hash){
+        switch(hash){
+            case 'login':
+                $("#modal_login").modal("show")
+                break
+            case 'rooms':
+                app.rooms.getRooms()
+                $(`#nav-link-${hash}`).tab("show")
+                break
+            case 'private-tables':
+                app.private_tables.getPrivateTables()
+                $("#nav-link-"+hash).tab("show")
+                break
+            case 'shared-tables':
+                app.shared_tables.getSharedTables()
+                $("#nav-link-"+hash).tab("show")
+                break
+            case 'data-files':
+                app.data_files.getDataFiles()
+                $("#nav-link-"+hash).tab("show")
+                break
+            case 'code-files':
+                app.code_files.getCodeFiles()
+                $("#nav-link-"+hash).tab("show")
+                break
+            default:
+                $("#nav-link-"+hash).tab("show")
+        }
+
+    }
+    function logout(){
+        $.post(`/majiang/vue/admin/logout`).done(
+            () => window.location.href = '/majiang/admin'
+        )
+    }   
+</script>
+</body>
+</html>

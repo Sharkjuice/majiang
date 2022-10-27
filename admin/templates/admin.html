@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- <meta http-equiv="refresh" content="10"> -->
+    <title>乐凡麻将</title>
+    <link href="/third_party/bootstrap.css" rel="stylesheet">
+    <link href="/stylesheets/fonts.css" rel="stylesheet">
+    <link href="/stylesheets/tree.css" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: '珠算麻将';
+                src: url(/fonts/majiang.ttf) format("truetype")
+        }
+        .majiang-font{
+                    font-family:珠算麻将;
+                    font-size: 2rem;
+                }
+        .nav-tabs {
+            background-color: #f3f3f3;
+            box-shadow: 0px 0px 33px -15px #000;
+        }
+        .tab-content {
+            background-color: #f3f3f3;
+            padding: 5px 15px;
+            height: 100%;
+        }
+        .nav-link {
+            color: #9C27B0;
+        }
+        .nav-tabs {
+            border-bottom: 1px solid #9C27B0;
+        }
+        .nav-tabs .nav-link.active {
+            border-color: #9C27B0 #9C27B0 #fff;
+        }
+        .block-center {
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%,-50%);
+            min-width:25rem;/*这个比例可以自己按需调节*/
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar navbar-static-top navbar-light">
+            <a class="navbar-brand" href="#">控制台</a>
+            <ul class="nav nav-tabs" role="tablist"> 
+                <li class="nav-item"><a id="nav-link-room" class="nav-link" onclick="onTab('room')" href="#room">所有房间</a></li>		           		
+                <li class="nav-item"><a id="nav-link-table-shared" class="nav-link" onclick="onTab('table-shared')" href="#table-shared">共享牌桌</a></li>
+                <li class="nav-item"><a id="nav-link-table-private" class="nav-link" onclick="onTab('table-private')" href="#table-private">专用牌桌</a></li>
+                <li class="nav-item"><a id="nav-link-table-record" class="nav-link" onclick="onTab('table-record')" href="#table-record">打牌记录</a></li>
+                <li class="nav-item"><a id="nav-link-table-version" class="nav-link" onclick="onTab('table-version')" href="#table-version">同步版本</a></li>
+            </ul>
+            <div class="nav float-xs-right">
+                <button type="button" onclick="window.location.reload()" class="mr-3 btn btn-light">刷新</button>
+                <button type="button" onclick="logout()" class="btn btn-light">退出</button>
+            </div>
+        </nav>
+
+        <div class="tab-content">
+            {%- include 'room.html' %}
+            {%- include 'table_private.html' %}
+            {%- include 'table_shared.html' %}
+            {%- include 'table_record.html' %}
+            {%- include 'table_version.html' %}
+        </div>
+    </div>
+{%- include 'private.html' %}
+{%- include 'confirm.html' %}
+<script src="/third_party/jquery-3.6.0.min.js"></script>
+<script src="/third_party/bootstrap.min.js"></script>
+<script src="/third_party/require.js" ></script>
+<script src="https://unpkg.com/vue@next"></script>
+<script>   
+    window.onload = function(){
+        if(window.location.href.includes("/majiang/admin/devel")){
+            const _ = require(["/devel/front/mjadmin.js"])
+        }else
+        if(window.location.href.includes("/majiang/admin")){
+            const _ = require(["/prod/front/mjadmin.js"])
+        }        
+    }
+</script>
+</body>
+</html>

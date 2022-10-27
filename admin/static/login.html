@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>中国麻将</title>
+    <link href="/third_party/bootstrap.css" rel="stylesheet">
+    <style>
+        .block-center {
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%,-50%);
+            min-width:25rem;/*这个比例可以自己按需调节*/
+        }
+
+    </style>
+</head>
+<body>
+<!-- login dialog -->
+<div class="block-center modal" id="modal_login" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">用户登录</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="login">
+                <form class="form-horizontal" role="form">
+                    <div class="form-group row">
+                        <label for="username" class="col-sm-3 control-label">用户名</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" v-model="username" placeholder="请输入用户名">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="password" class="col-sm-3 control-label">密码</label>
+                        <div class="col-sm-9">
+                            <input type="password" class="form-control" v-model="password" placeholder="请输入密码">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="offset-sm-3 col-sm-9">
+                            <div class="checkbox">
+                                <label>
+                                    <input v-model="remember_me" type="checkbox" :checked="remember_me">请记住我
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-danger offset-sm-3 col-sm-9" id="err-msg">
+                    </div>
+
+                    <div class="float-right">
+                        <button type="button" @click="login()" class="btn btn-primary">登录</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/third_party/jquery-3.6.0.min.js"></script>
+<script src="/third_party/bootstrap.min.js"></script>
+<script src="/third_party/require.js" ></script>
+<script src="https://unpkg.com/vue@next"></script>
+<script>   
+    let app = {}
+    function mount(vapp){
+        app.login = vapp.login.mount('#login')
+        window.app = app
+        $("#modal_login").modal("show")
+    }
+
+    window.onload = function(){
+        if(window.location.href.includes("/majiang/admin/devel")){
+            require(["/devel/front/mjadmin.js"], mount)
+        }else
+        if(window.location.href.includes("/majiang/admin")){
+            require(["/prod/front/mjadmin.js"], mount)
+        }
+    }
+</script>
+</body>
+</html>

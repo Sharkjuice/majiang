@@ -1,0 +1,621 @@
+    <!DOCTYPE html>
+    <html>
+        <head>
+            <!-- <meta name="viewport" content="width=device-width, height=device-height"> -->
+            <meta charset=utf-8>
+            <meta name="viewport" content="initial-scale=1.0 ,user-scalable=no">
+            <meta name="apple-mobile-web-app-capable" content="yes">
+            <meta name="apple-mobile-web-app-status-bar-style" content="black">
+            <!-- <meta name = "viewport" content = "width = 980,initial-scale=1.0"> -->
+            <link rel="apple-touch-icon" href="/images/tong_1_32.png">
+            <meta name="apple-mobile-web-app-title" content="麻将">
+            <title>中国麻将</title>
+            <style>
+                canvas { width: 100%; height: 100%; display: block; margin: 0 0}
+                body,html{
+                    height:100%;
+                    margin:0px;
+                    padding:0px;
+                    overflow:hidden;
+                }
+                @font-face {
+                    font-family: '珠算麻将';
+                    src: url(/fonts/majiang.ttf) format("truetype")
+                }
+        
+                @media (min-width:640px) and (max-width:700px){
+                    html{font-size:12px;}
+                    .icon-style {width: 75px;margin:0}
+                }
+
+                @media (min-width:701px) and (max-width:800px){
+                    html{font-size:14px;}
+                    .icon-style {width: 85px;margin:0}
+                }
+
+                @media (min-width:801px) and (max-width:900px){
+                    html{font-size:15px;}
+                    .icon-style {width: 85px;margin:0}
+                }
+
+                @media (min-width:901px) and (max-width:1000px){
+                    html{font-size:16px;}
+                    .icon-style {width: 90px;margin:0}
+                }
+
+                @media (min-width:1001px) and (max-width:1280px){
+                    html{font-size:18px;}
+                    .icon-style {width: 100px;margin:0}
+                }
+                
+                @media (min-width:1281px) and (max-width:1440px){
+                    html{font-size:24px;}
+                    .icon-style {width: 150px; margin:0}
+                }
+                .block-center {
+                    position: absolute;
+                    left: 50%;
+                    top: 50%;
+                    transform: translate(-50%,-50%);
+                    display:none;
+                }
+                .navbar-center {
+                    position: absolute;
+                    left: 50%;
+                    transform: translatex(-50%);
+                }
+                .majiang-font{
+                    font-family:珠算麻将;
+                    font-size: 2.6rem;
+                }
+
+                #tab_table .nav-tabs {
+                    background-color: #f3f3f3;
+                    box-shadow: 0px 0px 33px -15px #000;
+                }
+                #tab_table .tab-content {
+                    background-color: #f3f3f3;
+                    padding: 5px 15px;
+                    height: 100%;
+                }
+                #tab_table .nav-link {
+                    color: #9C27B0;
+                }
+                #tab_table .nav-tabs {
+                    border-bottom: 1px solid #9C27B0;
+                }
+                #tab_table .nav-tabs .nav-link.active {
+                    border-color: #9C27B0 #9C27B0 #fff;
+                }
+                .cell-p0 {
+                    padding: 0px!important;
+                }
+
+                .table-b0 {
+                    margin-bottom: 0px!important;
+                }
+
+            </style>
+            <link href="/third_party/bootstrap.css" rel="stylesheet">
+            <link href="/stylesheets/dice.css" rel="stylesheet"  >
+            <link href="/third_party/jquery-ui.min.css" rel="stylesheet" >
+            <link rel="manifest" href="/manifest.json" />
+            <link rel="icon" type="image/png" sizes="32x32" href="/images/tong_1_32.png">
+        </head>
+        <body onorientationchange="updateOrientation();"> 
+            <div style="width:100%;height:100%">
+                <button id='button_table' type="button" class="btn btn-primary" onclick="onTable(1)" 
+                    style="position:absolute;left:1em;top:1em;width:4em"> 牌桌
+                </button>
+        
+                <button id='button_warroom' type="button" class="btn btn-primary" onclick="onTable(2)" 
+                    style="position:absolute;left:1em;top:4em;width:4em"> 战况
+                </button>
+
+                <button id='button_hurry' type="button" class="btn btn-primary"  onclick="onTable(3)"
+                    style="position:absolute;left:1em;top:7em;width:4rem">快点
+                </button>
+
+                <button id='button_talk' type="button" class="btn btn-primary" onclick="doTalk()" id='do_talk'
+                    style="position:absolute;left:1em; top:10em;width:4em">对讲
+                </button>
+
+                <button id='button_switch' type="button" class="btn btn-primary" onclick="onTable(4)"
+                    style="position:absolute;left:1em; top:13em;width:4em">自动
+                </button>
+
+                <!-- <button id='button_paishu' type="button" class="btn btn-primary" onclick="onTable(100)"
+                    style="position:absolute;left:1em; top:16em;width:4em">余牌
+                </button> -->
+                <div>
+                <audio autoplay="true" id="audio_1" style="display:none"></audio>
+                <audio autoplay="true" id="audio_2" style="display:none"></audio>
+                <audio autoplay="true" id="audio_3" style="display:none"></audio>
+                </div>
+                <div id="dapai-sounds">
+                </div>
+        
+                <textarea class="form-control" id="text_messages" rows="2"
+                    style="position:absolute;left:10em;top:1em;width:10em;padding:0px"></textarea>
+            
+                <div id="center" style="height:100%"></div>
+
+                <button id="button_laizi" type="button" class="bg-light p-1" onclick="onTable(101)"
+                    style="width:3.5rem;font-family: 珠算麻将;font-size:3rem;position:absolute;left:1rem;display: none;">
+                </button>
+
+                <button type="button" class="btn  btn-large btn-danger" onclick="zimoHupai()"
+                    style="position:absolute;display:none;width:3em" id="button_hu_for_mopai"> 胡
+                </button>
+
+                <button type="button" class="btn  btn-large btn-danger" onclick="zimoGangpai()" 
+                    style="position:absolute;display:none;width:3em" id="button_gang_for_mopai"> 杠
+                </button>
+
+                <button type="button" class="btn  btn-large btn-primary" onclick="zimoPass()"
+                    style="position:absolute;display:none;width:3em" id="button_pass_for_mopai">过
+                </button>
+    
+                <button type="button" class="btn btn-large btn-danger" onclick="chiRequest()" 
+                    style="position:absolute;display:none;width:3em" id="button_chi_for_dapai"> 吃
+                </button>
+                <button type="button" class="btn  btn-large btn-danger" onclick="pengRequest()" 
+                    style="position:absolute;display:none;width:3em" id="button_peng_for_dapai"> 碰
+                </button>                
+
+                <button type="button" class="btn  btn-large btn-danger" onclick="huRequest()" 
+                    style="position:absolute;display:none;width:3em" id="button_hu_for_dapai"> 胡
+                </button>
+
+                <button type="button" class="btn  btn-large btn-danger" onclick="gangRequest()" 
+                    style="position:absolute;display:none;width:3em" id="button_gang_for_dapai"> 杠
+                </button>
+
+                <button type="button " class="btn  btn-large btn-primary" onclick="moRequest()"
+                    style="position:absolute;display:none;width:3em" id="button_mo_for_dapai"> 摸
+                </button>
+
+                <button type="button " class="btn  btn-large btn-primary pl-1 pr-1" onclick="actionAfterFapai(true)"
+                    style="position:absolute;display:none;" id="button_action_after_fapai"> 
+                    定制
+                </button>
+                <button type="button " class="btn  btn-large btn-primary" onclick="actionAfterFapai(false)"
+                    style="position:absolute;display:none;width:3em" id="button_pass_after_fapai"> 
+                    过
+                </button>
+
+
+            </div> 
+            <div id="tab_table" class="block-center" style="width: 27rem;">
+                <div class="container-fluid bg-light p-0" style="width:100%">
+                    <nav class="navbar navbar-light" style="justify-content: center">
+                        <!-- Tabs navs -->
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" href="#firstmenu"> 一人牌桌</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link"  href="#secondmenu">四人牌桌</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link"  href="#thirdmenu">当前牌桌</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link"  href="#fourthmenu">申请牌桌</a>
+                            </li>
+                        </ul>
+                    </nav>
+                    <!-- Tabs Content -->
+                    <div class="tab-content" style="height: 14rem">
+                        <div id="firstmenu"  class="tab-pane active" style="height: 100%;">
+                            <div class="container  d-flex flex-column justify-content-around" style="height:10rem">
+                                <div class="row">
+                                    <div class="col-sm-4 " style="display:table">
+                                        <p style="display:table-cell;vertical-align: middle;">我的名字</p></div>
+                                    <div class="col-sm-8" id="firstMyName"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-4 " style="display:table">
+                                        <p style="display:table-cell;vertical-align: middle;">打牌规则 </p>
+                                    </div>
+                                    <div class="col-sm-8" id="firstRules">0</div>
+                                </div>
+                            </div>
+                            <div class='container d-flex justify-content-end align-items-center'
+                            style="height:3rem;">
+                                <button type="button" onclick="onTable(5)" class="btn btn-primary mr-3">确定</button>
+                                <button type="button" onclick="$('#tab_table').hide()" class="btn btn-info">取消</button>
+                            </div>
+                        </div>
+                        <div id="secondmenu" class="tab-pane" style="height: 100%;">
+                            <div class="container  d-flex flex-column justify-content-around align-content-start" style="height:10rem">
+                                <div class="row">
+                                    <div class="col-sm-4 " style="display:table">
+                                        <p style="display:table-cell;vertical-align: middle;">我的名字</p></div>
+                                    <div class="col-sm-8" id="secondMyName"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-4 " style="display:table">
+                                        <p style="display:table-cell;vertical-align: middle;">牌桌名称</p>
+                                    </div>
+                                    <div class="col-sm-8">
+                                        <input type="text" id="text_table_id" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="offset-sm-4 ">如人数不够, 可在当前牌桌增加代打</div>
+                            </div>
+                            <div class='container d-flex justify-content-end align-items-center' style="height:3rem">
+                                <button type="button" onclick="onTable(6)" class="btn btn-primary mr-3">确定</button>
+                                <button type="button" onclick="$('#tab_table').hide()" class="btn btn-info">取消</button>
+                            </div>
+                        </div>
+                        <div id="thirdmenu" class="tab-pane" style="height: 100%;">
+                            <div class="container d-flex flex-column justify-content-around align-content-start" style="height:10rem;">
+                                <table class="table table-bordered table-sm">
+                                    <tbody>
+                                        <tr>
+                                            <td style="width:15%">桌名</td>
+                                            <td id="form_table_name" style="width:35%"></td>
+                                            <td style="width:15%">规则</td>
+                                            <td id="form_rules" style="width:35%"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>局数</td>
+                                            <td id="form_total_jushu"></td>
+                                            <td>人数</td>
+                                            <td id="form_players"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>主人</td>
+                                            <td id="form_owner">--</td>
+                                            <td>时间</td>
+                                            <td id="form_start_time"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>代打</td>
+                                            <td colspan="3">
+                                                <label class="radio-inline">
+                                                    <input type="radio" name="radio_robot_shu" id="radio_number_1"  value="1" checked>
+                                                     1个
+                                                </label>
+                                                <label class="radio-inline">
+                                                    <input type="radio" name="radio_robot_shu" id="radio_number_2"  value="2"> 2个
+                                                </label>
+                                                <label class="radio-inline">
+                                                    <input type="radio" name="radio_robot_shu" id="radio_number_3"  value="3"> 3个
+                                                </label>    
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>            
+                            </div>
+                            <div class='container d-flex justify-content-end align-items-center' style="height:3rem">
+                                <!-- <button type="button" onclick="onTable(11)" class="btn btn-primary p-1 mr-3"
+                                    id="btn-custom-1">
+                                    定制功能</button> -->
+                                <button type="button" onclick="onTable(7)" class="btn btn-primary p-1 mr-3">增加代打</button>
+                                <button type="button" onclick="onTable(8)" class="btn btn-danger p-1 mr-3">停止打牌</button>
+                                <button type="button" onclick="$('#tab_table').hide()" class="btn p-1 btn-info">取消</button>
+                            </div>
+                        </div>
+                        <div id="fourthmenu" class="tab-pane" style="height: 100%;">
+                            <div class="container  d-flex flex-column justify-content-around align-content-start" style="height:10rem">
+                                <div class="row">
+                                    <div class="col-sm-4 " style="display:table">
+                                        <p style="display:table-cell;vertical-align: middle;">我的名字</p>
+                                    </div>
+                                    <div class="col-sm-8" id="fourthMyName"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-4 " style="display:table">
+                                        <p style="display:table-cell;vertical-align: middle;">牌桌名称</p>
+                                    </div>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-4 " style="display:table">
+                                        <p style="display:table-cell;vertical-align: middle;">打牌规则</p>
+                                    </div>
+                                    <div class="col-sm-8" id="fourthRules">0</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-4 ">最多局数</div>
+                                    <div  class="col-sm-8">
+                                        <label class="radio-inline">
+                                            <input type="radio" name="radio_max_ju" id="radio_max_ju_6" value="6" checked> 6局
+                                        </label>
+                                        <label class="radio-inline">
+                                            <input type="radio" name="radio_max_ju" id="radio_max_ju_12"  value="12"> 12局
+                                        </label>
+                                        <label class="radio-inline">
+                                            <input type="radio" name="radio_max_ju" id="radio_max_ju_18"  value="18"> 18局
+                                        </label>
+                                        <label class="radio-inline">
+                                            <input type="radio" name="radio_max_ju" id="radio_max_ju_24"  value="24"> 24局
+                                        </label>
+                                        <!-- <label class="radio-inline">
+                                            <input type="radio" name="radio_max_ju" id="radio_max_ju_30"  value="30"> 30局
+                                        </label> -->
+                                    </div>            
+                                </div>
+                            </div>
+                            <div class='container d-flex justify-content-end align-items-center' style="height:3rem">
+                                <button type="button" onclick="onTable(7)" class="btn btn-primary mr-3">确定</button>
+                                <button type="button" onclick="$('#tab_table').hide()" class="btn btn-info">取消</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <!-- 模态框（色子）  -->
+        <div id="dice_modal" class="block-center">
+            <div class="dice"  id="dice">
+                <div class="face">
+                    <div class="item1"></div>
+                </div>
+                <div class="face">
+                    <div class="item2"></div>
+                    <div class="item2"></div>
+                </div>
+                <div class="face">
+                    <div class="item3"></div>
+                    <div class="item3"></div>
+                    <div class="item3"></div>
+                </div>
+                <div class="face">
+                    <div class="face_0">
+                        <div class="item4"></div>
+                        <div class="item4"></div>
+                    </div>
+                    <div class="face_0">
+                        <div class="item4"></div>
+                        <div class="item4"></div>
+                    </div>
+                </div>
+                <div class="face">
+                    <div class="face_0">
+                        <div class="item5"></div>
+                        <div class="item5"></div>
+                    </div>
+                    <div class="face_0">
+                        <div class="item5"></div>
+                    </div>
+                    <div class="face_0">
+                        <div class="item5"></div>
+                        <div class="item5"></div>
+                    </div>
+                </div>
+                <div class="face">
+                    <div class="face_0">
+                        <div class="item6"></div>
+                        <div class="item6"></div>
+                    </div>
+                    <div class="face_0">
+                        <div class="item6"></div>
+                        <div class="item6"></div>
+                    </div>
+                    <div class="face_0">
+                        <div class="item6"></div>
+                        <div class="item6"></div>
+                    </div>
+                </div>
+            </div>
+        </div>  
+        <!-- 战况统计  -->
+        <div id="warroom" class="container-fluid block-center" style="width:45em">
+            <div class="row bg-info" >
+                <div id='warroom_pai_list_2' class="col-sm-4 p-1 d-flex flex-column justify-content-center 
+                    text-white border border-danger border-right-0" style="line-height: 3rem;">
+                    <div id='pai_list_0_2' class="majiang-font"></div>
+                    <div id='pai_list_1_2' class="majiang-font"></div>
+                </div>
+                <div class="col-sm-4 p-1 d-flex justify-content-end align-items-stretch
+                        border border-danger border-left-0">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-sm-4 p-0 border border-light">方位</div>
+                            <div class="col-sm-4 p-0 border border-light">
+                                <span class="badge badge-info" id="warroom_wei_2" >--</span>
+                            </div>
+                            <div class="col-sm-4 p-0 border border-light">宝牌</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-4 p-0 border border-light">胡牌</div>
+                            <div class="col-sm-4 p-0 border border-light">
+                                <span class="badge badge-info" id="warroom_hupai_shu_2">0</span>
+                            </div>
+                            <div class="col-sm-4 p-0 border border-light">
+                                <span class="badge badge-info" id="warroom_laizi" >--</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-4 p-0 border border-light">本局</div>
+                            <div class="col-sm-8 p-0 border border-light"><span class="badge badge-info" id="warroom_this_score_2">0</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12 p-0 border border-light">
+                                    <span class="badge badge-info" id="warroom_score_reason_2">--</span>
+                            </div>
+                        </div>
+                    </div>                        
+                    <div class="card icon-style" style="border-radius:0px">
+                        <img class="card-img-top" src="/images/xidu.png">                          
+                        <div class="card-body p-0">
+                            <p class="card-text" id="warroom_name_2">空</p>
+                        </div>
+                    </div>
+                </div>
+                <div id='warroom_pai_list_1' class="col-sm-4 d-flex p-1 flex-column justify-content-center 
+                     text-white  border border-danger border-bottom-0" style="line-height: 3rem;">
+                    <div id='pai_list_0_1' class="majiang-font"></div>
+                    <div id='pai_list_1_1' class="majiang-font"></div>
+                </div>
+            </div>
+
+            <div class="row bg-info" >
+                <div class="col-sm-4 p-1 d-flex justify-content-start align-items-stretch
+                    border border-danger border-bottom-0">
+                    <div class="card icon-style" style="border-radius:0px">
+                        <img class="card-img-top" src="/images/beigai.png">                               
+                        <div class="card-body p-0">
+                            <p class="card-text" id="warroom_name_3">空</p>
+                        </div>
+                    </div>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-sm-6 p-0 border border-light">方位</div>
+                            <div class="col-sm-6 p-0 border border-light">
+                                <span class="badge badge-info" id="warroom_wei_3" >--</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6 p-0 border border-light">胡牌</div>
+                            <div class="col-sm-6 p-0 border border-light">
+                                <span class="badge badge-info" id="warroom_hupai_shu_3">0</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6 p-0 border border-light">本局</div>
+                            <div class="col-sm-6 p-0 border border-light"><span class="badge badge-info" id="warroom_this_score_3">0</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12 p-0 border border-light">
+                                    <span class="badge badge-info" id="warroom_score_reason_3">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4 p-1 d-flex flex-column justify-content-around bg-light text-center
+                    border border-danger">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-info" id="button_game_previous"
+                            onclick="onTable(9)" style="padding-top: 0px;padding-bottom: 0px">&lt&lt</button>
+                        <button type="button disabled" class="btn btn-info" id="button_game_current" 
+                            style="padding-top: 0px;padding-bottom: 0px">第1局</button>
+                        <button type="button" class="btn btn-info" id="button_game_next" 
+                            style="padding-top: 0px;padding-bottom: 0px"
+                            onclick="onTable(10)">&gt&gt</button>
+                    </div> 
+                    <table class="table table-bordered table-sm table-b0">
+                        <thead>
+                            <tr>
+                                <th class="cell-p0" colspan='4'>总分榜</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="cell-p0" style="width:25%">东:</td>
+                                <td class="cell-p0" id="warroom_total_score_0" style="width:25%"></td>
+                                <td class="cell-p0" style="width:25%">南:</td>
+                                <td class="cell-p0" id="warroom_total_score_1" style="width:25%"></td>
+                            </tr>
+                            <tr>
+                                <td class="cell-p0">西:</td>
+                                <td class="cell-p0" id="warroom_total_score_2"></td>
+                                <td class="cell-p0"> 北:</td>
+                                <td class="cell-p0" id="warroom_total_score_3"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-sm-4 p-1 d-flex justify-content-end align-items-stretch border border-danger border-top-0">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-sm-6 p-0 border border-light">方位</div>
+                            <div class="col-sm-6 p-0 border border-light">
+                                <span class="badge badge-info" id="warroom_wei_1" >--</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6 p-0 border border-light">胡牌</div>
+                            <div class="col-sm-6 p-0 border border-light">
+                                <span class="badge badge-info" id="warroom_hupai_shu_1">0</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6 p-0 border border-light">本局</div>
+                            <div class="col-sm-6 p-0 border border-light"><span class="badge badge-info" id="warroom_this_score_1">0</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12 p-0 border border-light">
+                                    <span class="badge badge-info" id="warroom_score_reason_1">--</span>
+                            </div>
+                        </div>
+                    </div>                        
+                    <div class="card icon-style" style="border-radius:0px">
+                        <img class="card-img-top" src="/images/nandi.png">                            
+                        <div class="card-body p-0">
+                            <p class="card-text" id="warroom_name_1">空</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row bg-info" >
+                <div id='warroom_pai_list_3' class="col-sm-4 p-0 d-flex flex-column justify-content-center 
+                     text-white  border border-danger border-top-0" style="line-height: 3rem;">
+                    <div id='pai_list_0_3' class="majiang-font"></div>
+                    <div id='pai_list_1_3' class="majiang-font"></div>
+                </div> 
+                <div class="col-sm-4 p-1 d-flex justify-content-start align-items-stretch
+                    border border-danger border-right-0">
+                    <div class="card icon-style" style="border-radius:0px">
+                        <img class="card-img-top" src="/images/dongxie.png">              
+                        <div class="card-body p-0">
+                            <p class="card-text" id="warroom_name_0">空</p>
+                        </div>
+                    </div>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-sm-6 p-0 border border-light">方位</div>
+                            <div class="col-sm-6 p-0 border border-light">
+                                <span class="badge badge-info" id="warroom_wei_0" >--</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6 p-0 border border-light">胡牌</div>
+                            <div class="col-sm-6 p-0 border border-light">
+                                <span class="badge badge-info" id="warroom_hupai_shu_0">0</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6 p-0 border border-light">本局</div>
+                            <div class="col-sm-6 p-0 border border-light"><span class="badge badge-info" id="warroom_this_score_0">0</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12 p-0 border border-light">
+                                    <span class="badge badge-info" id="warroom_score_reason_0">--</span>
+                            </div>
+                        </div>
+                    </div>                        
+                </div>
+                <div id='warroom_pai_list_0' class="col-sm-4 p-0 d-flex flex-column justify-content-center 
+                     text-white  border border-danger border-left-0" style="line-height: 3rem;">
+                    <div id='pai_list_0_0' class="majiang-font"></div>
+                    <div id='pai_list_1_0' class="majiang-font"></div>
+                </div>
+            </div>
+        </div>
+        <script src="/third_party/jquery-3.6.0.min.js"></script>
+        <script src="/third_party/bootstrap.min.js"></script>
+        <!-- <script src="/third_party/jquery-ui.min.js"></script>         -->
+        <script src="/three/three.js"></script>
+        <script src="/three/js/Detector.js"></script> -->
+        <script src="/third_party/require.js"></script>
+        <script>
+                window.onload = function(){
+                if(window.location.href.includes("/majiang/app/devel")){
+                    const _ = require(["/devel/front/mjinit.js"])
+                }else
+                if(window.location.href.includes("/majiang/app")){
+                    const _ = require(["/prod/front/mjinit.js"])
+                }                    
+            }
+        </script>
+  	</body>
+</html>

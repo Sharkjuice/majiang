@@ -1,0 +1,114 @@
+
+<div id="room" class="tab-pane">
+    <form class="form-horizontal" role="form">
+        <div class="form-group row">
+            <label for="room_hao" class="col-sm-3 control-label">房间号</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" id="room_hao" placeholder="请输房间号">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="room_port" class="col-sm-3 control-label">端口</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" id="room_port" placeholder="请输入端口">
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label for="room_start_method" class="col-sm-3 control-label">启动方式</label>
+            <div class="col-sm-9">
+              <label class="radio-inline">
+                  <input type="radio" name="radio_start_method" id="radio_auto_start" checked value="0"> 自动启动
+              </label>
+              <label class="radio-inline">
+                  <input type="radio" name="radio_start_method" id="radio_manual_start" value="1"> 手动启动
+              </label>
+              <label class="radio-inline">
+                  <input type="radio" name="radio_start_method" id="radio_not_start" value="2"> 不启动
+              </label>
+          </div>
+        </div>
+
+        <div class="float-right">
+            <button type="button" onclick="addRoom()" class="btn btn-primary">增加</button>
+        </div>
+    </form>
+    <br><br>
+    <table class="table">
+        <thead>
+            <tr>
+            <th>房间号</th>
+            <th>端口</th>
+            <th>IP地址</th>
+            <th>在线状态</th>
+            <th>启动方式</th>
+            <th>可用状态</th>
+            <th>管理状态</th>
+            <th>房间类型</th>            
+            <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for room in room_list %}   
+            <tr>
+            <td>{{room.room_id}}</td>
+            <td>{{room.port}}</td>
+            <td>{{room.ipaddr}}</td>
+            {% if room.status == const.ONLINE %}
+            <td>在线</td>
+            {% else %}
+            <td>离线</td>
+            {% endif %}
+            {% if room.start_method == const.AUTO_START %}
+            <td>自动</td>
+            {% elif room.start_method == const.MANUL_START %}
+            <td>手动</td>
+            {% else %}
+            <td>从不</td>
+            {% endif %}
+            {% if room.blocked %}
+            <td>暂停</td>
+            {% else %}
+            <td>可用</td>
+            {% endif %}
+            {% if room.managed %}
+            <td>已管理</td>
+            {% else %}
+            <td>未管理</td>
+            {% endif %}
+            {% if room.type == const.PROD %}
+            <td>生产</td>
+            {% else %}
+            <td>开发</td>
+            {% endif %}
+
+            <td>        
+                {% if room.status == const.OFFLINE %}
+                <button type="button" onclick="onRoom({{room.room_id}}, 'delete')" 
+                    class="btn btn-primary"> 删除</button>
+                {% endif %}
+                
+                {% if room.blocked %}
+                <button type="button" onclick="onRoom({{room.room_id}}, 'enable')" 
+                    class="btn btn-primary">启用</button>
+                {% else %}
+                <button type="button" onclick="onRoom({{room.room_id}}, 'disable')" 
+                    class="btn btn-primary">停用</button>
+                {% endif %}
+
+               
+                {% if room.managed %}                                
+                <button type="button" onclick="onRoom({{room.room_id}}, 'stop')" 
+                    class="btn btn-primary">关闭</button>
+                {% else %}
+                    {% if room.status == const.OFFLINE and room.start_method != const.NOT_START %}
+                <button type="button" onclick="onRoom({{room.room_id}}, 'start')" 
+                    class="btn btn-primary">启动</button>
+                    {% endif %}
+                {% endif %}
+            </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>        
+</div>

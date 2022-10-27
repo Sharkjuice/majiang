@@ -1,0 +1,118 @@
+define([], function () {
+const ME = 0
+const RIGHT = 1
+const OPPOSITE = 2
+const LEFT = 3
+
+
+//牌型类型, 数字越大越孤独, 以便自动选牌
+const SEQ_MING_GANG = 0
+const SEQ_AN_GANG = 1
+const SEQ_CHI = 2
+const SEQ_PENG = 3
+const SEQ_JIANG = 4
+const SEQ_CHI_SIDE = 5
+const SEQ_CHI_MID = 6
+const SEQ_SINGLE = 7
+//特殊类型的胡牌, 比如将一色, 全19
+const SEQ_SPECIAL = 8
+
+const NONE = [] 
+const HU_DAPAI = 0
+const HU_ZIMO = 1
+const HU_7_DUI = 2
+
+
+const TING_7_DUI =3
+const TING_CHI_PENG = 4
+//const TING_SPICIAL = 5
+
+//消息类型
+const   ET_LOGIN = 0
+const   ET_JOIN = 1
+const   ET_NIOJ = 2
+const   ET_JOIN_END = 3
+const   ET_LAIZI = 4
+const   ET_LAIZI_END = 5
+const   ET_FAPAI = 6
+const   ET_FAPAI_END = 7
+const   ET_PAI_QUAN = 8
+const   ET_MO_REQUEST = 9
+const   ET_MOPAI = 10
+const   ET_MOPAI_END = 11
+const   ET_DAPAI = 12
+const   ET_DAPAI_END = 13
+const   ET_CHI_REQUEST = 14
+const   ET_CHIPAI = 15
+const   ET_PENG_REQUEST = 16
+const   ET_PENGPAI = 17
+const   ET_CHIPENG_END = 18
+const   ET_WAIT_FOR_PENG = 19
+const   ET_HU_REQUEST = 20
+const   ET_HUPAI = 21
+const   ET_HUPAI_END = 22
+const   ET_DAPAI_MINGGANG_REQUEST = 23
+const   ET_DAPAI_MINGGANG = 24
+const   ET_MOPAI_MINGGANG = 25
+const   ET_INSTANT_ANGANG = 26
+const   ET_DEFERED_ANGANG = 27
+const   ET_GANGPAI_END = 28
+const   ET_ROOM_STATUS = 29
+const   ET_CLOSE = 30
+const   ET_MESSAGE = 31
+const   ET_ADD_ROBOT = 32
+const   ET_INIT_ACTION = 33
+const   ET_INIT_ACTION_END = 34
+const   ET_RTC_OFFER = 100
+const   ET_RTC_ANSWER = 101 
+const   ET_RTC_CANDIDATE = 102 
+const   ET_RTC_LEAVE = 103
+const   ET_RTC_HANGUP = 104
+const   ET_RTC_SETUP = 105
+
+
+//消息地址
+const    EA_SYSTEM = 100
+const    EA_OTHER = 101
+const    EA_ALL = 104
+
+//杠牌类型
+const GT_MOPAI_MINGGANG = 0
+const GT_DAPAI_MINGGANG = 1
+const GT_ANGANG = 2
+const GT_NO_GANG = -1
+//牌局状态
+const PS_EMPTY = 0
+const PS_ONE = 1
+const PS_TWO = 2
+const PS_THREE = 3
+const PS_FOUR = 4
+const PS_OFFLINE = 5
+
+//自动打牌模式
+const HUMAN_PLAYER = 0
+const ROBOT_PLAYER = 1
+
+return  {
+    ME,RIGHT,OPPOSITE,LEFT,
+    //牌型类型
+    SEQ_CHI, SEQ_PENG, SEQ_JIANG, SEQ_CHI_SIDE, SEQ_CHI_MID, SEQ_SINGLE, SEQ_MING_GANG,
+    SEQ_AN_GANG, SEQ_SPECIAL, NONE, 
+    ET_MESSAGE,ET_JOIN,ET_JOIN_END,ET_PAI_QUAN,ET_FAPAI,ET_FAPAI_END,ET_MO_REQUEST,ET_MOPAI,
+    ET_MOPAI_END,ET_DAPAI,ET_DAPAI_END,ET_CHI_REQUEST,ET_CHIPAI,ET_PENG_REQUEST,ET_PENGPAI,
+    ET_CHIPENG_END,ET_WAIT_FOR_PENG,ET_HU_REQUEST,ET_HUPAI,ET_HUPAI_END,ET_LAIZI,
+    ET_DAPAI_MINGGANG_REQUEST,ET_DAPAI_MINGGANG,ET_MOPAI_MINGGANG,ET_INSTANT_ANGANG,
+    ET_DEFERED_ANGANG,ET_GANGPAI_END,ET_ROOM_STATUS,ET_CLOSE,ET_ADD_ROBOT,ET_LOGIN,
+    ET_RTC_OFFER, ET_RTC_ANSWER, ET_RTC_CANDIDATE, ET_RTC_LEAVE, ET_RTC_HANGUP, ET_RTC_SETUP,
+    EA_SYSTEM, EA_OTHER, EA_ALL,ET_LAIZI_END,ET_NIOJ,ET_INIT_ACTION,ET_INIT_ACTION_END,
+    
+    //胡牌类型
+    HU_DAPAI, HU_7_DUI, HU_ZIMO,TING_CHI_PENG,TING_7_DUI,
+    //杠牌类型
+    GT_MOPAI_MINGGANG, GT_DAPAI_MINGGANG, GT_ANGANG,GT_NO_GANG,
+    //牌局状态
+    PS_EMPTY,PS_ONE,PS_TWO, PS_THREE, PS_FOUR, PS_OFFLINE,
+    //自动打牌模式
+    HUMAN_PLAYER,ROBOT_PLAYER
+    }
+})

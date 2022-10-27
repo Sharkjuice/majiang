@@ -1,0 +1,152 @@
+    <!DOCTYPE html>
+    <html>
+        <head>
+            <meta name="viewport" content="width=device-width, height=device-height">
+            <meta charset=utf-8>
+            <title>中国麻将</title>
+            <style>
+                canvas { width: 100%; height: 100%; display: block; margin: 0 0}
+                body,html{
+                    height:100%;
+                    margin:0px;
+                    padding:0px;
+                    overflow:hidden;
+                }
+                @font-face {
+                    font-family: '珠算麻将';
+                    src: url(/fonts/majiang.ttf) format("truetype")
+                }
+
+                .block-center {
+                    position: absolute;
+                    left: 50%;
+                    top: 50%;
+                    transform: translate(-50%,-50%);
+                    display:none;
+                }
+        
+                @media (min-width:640px) and (max-width:800px){
+                    html{font-size:12px;}
+                    .icon-style {width: 75px;margin:0}
+                }
+                @media (min-width:801px) and (max-width:1280px){
+                    html{font-size:18px;}
+                    .icon-style {width: 100px;margin:0}
+                }
+                @media (min-width:1281px) and (max-width:1440px){
+                    html{font-size:24px;}
+                    .icon-style {width: 150px; margin:0}
+                }
+                .majiang-font{
+                    font-family:珠算麻将;
+                    font-size: 2.5rem;
+                }
+
+            </style>
+            <link href="/third_party/bootstrap.css" rel="stylesheet">
+            <link href="/stylesheets/dice.css" rel="stylesheet"  >
+            <link rel="icon" type="image/png" sizes="32x32" href="/images/tong_1_32.png">
+        </head>
+        <body> 
+            <div style="width:100%;height:100%">
+                <button id = "button_step" type="button" class="btn btn-primary" onclick="onPaizhuo(1)" 
+                    style="position:absolute;left:1em;top:1em;width:4rem">单步
+                </button>
+        
+                <button type="button" class="btn btn-primary" onclick="onPaizhuo(2)" 
+                    style="position:absolute;left:1em;top:4em;width:4em">算牌
+                </button>
+                <button type="button" class="btn btn-primary"  onclick="onPaizhuo(3)"
+                    style="position:absolute;left:1em;top:7em;width:4rem">继续
+                </button>
+
+                <button type="button" class="btn btn-primary"  onclick="onPaizhuo(4)"
+                    style="position:absolute;left:1em;top:10em;width:4rem">重开
+                </button>
+
+                <button type="button" class="btn btn-primary"  onclick="onPaizhuo(5)"
+                    style="position:absolute;left:1em;top:13em;width:4rem">旋转
+                </button>
+
+                <textarea class="form-control" id="text_messages" rows="4"
+                    style="position:absolute;left:10em;top:1em;width:10em;padding:0px"></textarea>
+            
+                <div id="center" style="height:100%"></div>
+
+                <button id="button_laizi"  class="bg-light"
+                    style="font-family: 珠算麻将;font-size:3rem;position:absolute;left:1rem;display: none;">
+                </button>
+
+            </div> 
+        </div>
+        <!-- 模态框（色子）  -->
+        <div id="dice_modal" class="block-center">
+            <div class="dice"  id="dice">
+                <div class="face">
+                    <div class="item1"></div>
+                </div>
+                <div class="face">
+                    <div class="item2"></div>
+                    <div class="item2"></div>
+                </div>
+                <div class="face">
+                    <div class="item3"></div>
+                    <div class="item3"></div>
+                    <div class="item3"></div>
+                </div>
+                <div class="face">
+                    <div class="face_0">
+                        <div class="item4"></div>
+                        <div class="item4"></div>
+                    </div>
+                    <div class="face_0">
+                        <div class="item4"></div>
+                        <div class="item4"></div>
+                    </div>
+                </div>
+                <div class="face">
+                    <div class="face_0">
+                        <div class="item5"></div>
+                        <div class="item5"></div>
+                    </div>
+                    <div class="face_0">
+                        <div class="item5"></div>
+                    </div>
+                    <div class="face_0">
+                        <div class="item5"></div>
+                        <div class="item5"></div>
+                    </div>
+                </div>
+                <div class="face">
+                    <div class="face_0">
+                        <div class="item6"></div>
+                        <div class="item6"></div>
+                    </div>
+                    <div class="face_0">
+                        <div class="item6"></div>
+                        <div class="item6"></div>
+                    </div>
+                    <div class="face_0">
+                        <div class="item6"></div>
+                        <div class="item6"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="/third_party/jquery-3.6.0.min.js"></script>
+        <script src="/third_party/bootstrap.min.js"></script>
+        <script src="/three/three.js"></script>
+        <script src="/third_party/require.js"></script>
+        <script>
+            window.onload = function(){
+                if(window.location.href.includes("/majiang/playback/devel")){
+                    const _ = require(["/devel/front/mjplayback.js"])
+                }else
+                if(window.location.href.includes("/majiang/playback")){
+                    const _ = require(["/prod/front/mjplayback.js"])
+                }                    
+            }
+        </script>
+    
+  	</body>
+</html>

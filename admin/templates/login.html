@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>乐凡麻将</title>
+    <link href="/third_party/bootstrap.css" rel="stylesheet">
+    <style>
+        .block-center {
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%,-50%);
+            min-width:25rem;/*这个比例可以自己按需调节*/
+        }
+    </style>
+</head>
+<body onload="load()">
+    <div class="block-center modal" id="modal_login" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">用户登录</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal" role="form">
+                        <div class="form-group row">
+                            <label for="username" class="col-sm-3 control-label">用户名</label>
+                            <div class="col-sm-9">
+                                {% if username %}
+                                <input type="text" class="form-control" id="username" value="{{username}}" placeholder="请输入用户名">
+                                {% else %}
+                                <input type="text" class="form-control" id="username"  placeholder="请输入用户名">
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="password" class="col-sm-3 control-label">密码</label>
+                            <div class="col-sm-9">
+                                <input type="password" class="form-control" id="password" placeholder="请输入密码">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="offset-sm-3 col-sm-9">
+                                <div class="checkbox">
+                                    <label>
+                                        <input id="remember_me" type="checkbox">请记住我
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-danger offset-sm-3 col-sm-9" id="err-msg">
+                        </div>
+    
+                        <div class="float-right">
+                            <button type="button" onclick="login()" class="btn btn-primary">登录</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/third_party/jquery-3.6.0.min.js"></script>
+<script src="/third_party/bootstrap.min.js"></script>
+<script>
+    function load(){
+        $("#modal_login").modal("show")
+    }
+    function login(){
+        let username = $("#username").val()
+        let password = $("#password").val()
+        let remember_me = $("#remember_me").is(':checked')
+
+        $.ajax({
+            url:'/majiang/admin/login', 
+            type: "POST",
+            contentType: "application/json",
+            dataType: "json",
+            data: JSON.stringify({username,password,remember_me}),
+            success: (data) => {
+                if(data.result == 0){
+                    $("#modal_login").modal("hide")
+                    window.location.href = '/majiang/admin'
+                }else{
+                    $("#err-msg").text("用户名或密码错误!")
+                }
+            },
+            error: (err) => {
+                console.log("error", err)
+            }
+          })
+    }
+</script>
+</body>
+</html>
